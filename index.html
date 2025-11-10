@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>哈语译者</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>哈语译者</h1>
+  <div class="row">
+    <label>
+      人话
+      <textarea id="plaintext" class="box" placeholder="在此输入明文..."></textarea>
+    </label>
+
+    <div class="center-controls" aria-hidden="false">
+      <button id="btn-encode" class="btn" title="加密（人话 → 哈语）">加密</button>
+      <button id="btn-decode" class="btn" title="解密（哈语 → 人话）">解密</button>
+    </div>
+
+    <label>
+      哈语
+      <textarea id="ciphertext" class="box" placeholder="在此输入密文或从上面获取加密结果..."></textarea>
+    </label>
+  </div>
+
+  <div id="message" role="status"></div>
+
+  <script src="translator.browser.js"></script>
+  <script>
+    const plainEl = document.getElementById('plaintext');
+    const cipherEl = document.getElementById('ciphertext');
+    const msgEl = document.getElementById('message');
+
+    function showMessage(text, ok) {
+      msgEl.textContent = text || '';
+      msgEl.className = ok ? 'ok' : '';
+    }
+
+    document.getElementById('btn-encode').addEventListener('click', () => {
+      const input = plainEl.value || '';
+      try {
+        const out = HachimiTranslator.encode(input);
+        cipherEl.value = out;
+        showMessage('加密成功', true);
+      } catch (e) {
+        showMessage('加密出错: ' + (e && e.message ? e.message : e));
+      }
+    });
+
+    document.getElementById('btn-decode').addEventListener('click', () => {
+      const c = cipherEl.value || '';
+      const v = HachimiTranslator.validateCipher(c);
+      if (!v.ok) {
+        showMessage('校验失败：' + v.message);
+        return;
+      }
+      try {
+        const out = HachimiTranslator.decode(c);
+        plainEl.value = out;
+        showMessage('解密成功', true);
+      } catch (e) {
+        showMessage('解密出错: ' + (e && e.message ? e.message : e));
+      }
+    });
+  </script>
+</body>
+</html>
